@@ -5,12 +5,9 @@ export default class Albums extends Component {
   constructor(props) {
     super(props);
   }
+
   componentDidMount() {
-    fetch('api/albums')
-      .then(res => res.json())
-      .then(albums => {
-        this.props.loadAlbums(albums)
-      })
+    this.props.loadAlbums();
   }
 
   render() {
