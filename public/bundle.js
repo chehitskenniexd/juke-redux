@@ -21481,6 +21481,8 @@
 	
 	var _reactRedux = __webpack_require__(180);
 	
+	var _redux = __webpack_require__(205);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -21626,32 +21628,12 @@
 	
 	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 	  return {
-	    toggle: function (_toggle) {
-	      function toggle() {
-	        return _toggle.apply(this, arguments);
-	      }
-	
-	      toggle.toString = function () {
-	        return _toggle.toString();
-	      };
-	
-	      return toggle;
-	    }(function () {
-	      return dispatch(toggle());
-	    }),
-	    toggleOne: function (_toggleOne) {
-	      function toggleOne(_x2, _x3) {
-	        return _toggleOne.apply(this, arguments);
-	      }
-	
-	      toggleOne.toString = function () {
-	        return _toggleOne.toString();
-	      };
-	
-	      return toggleOne;
-	    }(function (song, list) {
-	      return dispatch(toggleOne(song, list));
-	    })
+	    toggle: function toggle() {
+	      return dispatch((0, _redux.toggle)());
+	    },
+	    toggleOne: function toggleOne(song, list) {
+	      return dispatch((0, _redux.toggleOne)(song, list));
+	    }
 	  };
 	};
 	
@@ -21795,7 +21777,6 @@
 	  var isPlaying = _ref.isPlaying;
 	  var toggle = _ref.toggle;
 	
-	  console.log(songs);
 	  return _react2.default.createElement(
 	    'table',
 	    { className: 'table' },
@@ -23774,17 +23755,22 @@
 	    };
 	};
 	var load = exports.load = function load() {
-	    return function (dispatch) {
-	        _audio2.default.src = currentSong.audioUrl;
+	    return function (dispatch, getState) {
+	        var _getState = getState();
+	
+	        var currentSong = _getState.currentSong;
+	
+	        _audio2.default.src = 'api/songs/' + currentSong.id + '/audio';
 	        _audio2.default.load();
-	        dispatch(setCurrentSong(currentSong, currentSongList));
+	        dispatch(playSong());
+	        //dispatch(setCurrentSong(currentSong, currentSongList));
 	    };
 	};
 	var toggle = exports.toggle = function toggle() {
 	    return function (dispatch, getState) {
-	        var _getState = getState();
+	        var _getState2 = getState();
 	
-	        var isPlaying = _getState.isPlaying;
+	        var isPlaying = _getState2.isPlaying;
 	
 	        if (isPlaying) {
 	            dispatch(pauseSong());
@@ -23795,12 +23781,13 @@
 	};
 	var toggleOne = exports.toggleOne = function toggleOne(selectedSong, selectedSongList) {
 	    return function (dispatch, getState) {
-	        var _getState2 = getState();
+	        var _getState3 = getState();
 	
-	        var currentSong = _getState2.currentSong;
+	        var currentSong = _getState3.currentSong;
 	
 	        if (selectedSong.id !== currentSong.id) {
-	            dispatch(startSong(selectedSong, selectedSongList));
+	            dispatch(setCurrentSong(selectedSong, selectedSongList));
+	            dispatch(load());
 	        } else {
 	            dispatch(toggle());
 	        }
@@ -23810,9 +23797,9 @@
 	var selectAlbum = exports.selectAlbum = function selectAlbum(selectedAlbum) {
 	    return function (dispatch, getState) {
 	        //const album = getState().album
-	        var _getState3 = getState();
+	        var _getState4 = getState();
 	
-	        var album = _getState3.album;
+	        var album = _getState4.album;
 	
 	        if (album.id !== selectAlbum.id) {
 	            dispatch(setCurrentAlbum(selectAlbum));

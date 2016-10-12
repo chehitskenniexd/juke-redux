@@ -3,7 +3,6 @@
 import React, { Component } from 'react';
 
 export default ({ songs, currentSong, isPlaying, toggle }) => {
-  console.log(songs)
   return (
     <table className='table'>
       <thead>

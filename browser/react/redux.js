@@ -58,10 +58,12 @@ export const pauseSong = () => dispatch => {
     AUDIO.pause()
     dispatch(stopPlaying());
 }
-export const load = () => dispatch => {
-    AUDIO.src = currentSong.audioUrl;
+export const load = () => (dispatch, getState) => {
+    const { currentSong } = getState();
+    AUDIO.src = `api/songs/${currentSong.id}/audio`;
     AUDIO.load();
-    dispatch(setCurrentSong(currentSong, currentSongList));
+    dispatch(playSong());
+    //dispatch(setCurrentSong(currentSong, currentSongList));
 }
 export const toggle = () => (dispatch, getState) => {
     const {isPlaying} = getState();
@@ -75,7 +77,8 @@ export const toggleOne = (selectedSong, selectedSongList) =>
     (dispatch, getState) => {
         const { currentSong } = getState();
         if (selectedSong.id !== currentSong.id) {
-            dispatch(startSong(selectedSong, selectedSongList))
+            dispatch(setCurrentSong(selectedSong, selectedSongList))
+            dispatch(load());
         } else {
             dispatch(toggle());
         }

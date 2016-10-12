@@ -10,6 +10,7 @@ import Album from '../components/Album';
 import Player from '../components/Player';
 import AlbumsContainer from './AlbumsContainer';
 import { connect } from 'react-redux';
+import { toggle, toggleOne } from '../redux'
 
 const convertSong = song => {
   song.audioUrl = `/api/songs/${song.id}/audio`;
