@@ -9,6 +9,7 @@ import Sidebar from '../components/Sidebar';
 import Album from '../components/Album';
 import Player from '../components/Player';
 import AlbumsContainer from './AlbumsContainer';
+import { connect } from 'react-redux';
 
 const convertSong = song => {
   song.audioUrl = `/api/songs/${song.id}/audio`;
@@ -30,23 +31,17 @@ const skip = (interval, { currentSongList, currentSong }) => {
   return [next, currentSongList];
 };
 
-export default class AppContainer extends Component {
+class AppContainer extends Component {
 
   constructor (props) {
     super(props);
     this.state = initialState;
 
-    this.toggle = this.toggle.bind(this);
-    this.toggleOne = this.toggleOne.bind(this);
     this.next = this.next.bind(this);
     this.prev = this.prev.bind(this);
   }
 
   componentDidMount () {
-    fetch('/api/albums/1')
-      .then(res => res.json())
-      .then(album => this.onLoad(convertAlbum(album)));
-
     AUDIO.addEventListener('ended', () =>
       this.next());
     AUDIO.addEventListener('timeupdate', () =>
@@ -55,39 +50,6 @@ export default class AppContainer extends Component {
 
   onLoad (album) {
     this.setState({ album });
-  }
-
-  play () {
-    AUDIO.play();
-    this.setState({ isPlaying: true });
-  }
-
-  pause () {
-    AUDIO.pause();
-    this.setState({ isPlaying: false });
-  }
-
-  load (currentSong, currentSongList) {
-    AUDIO.src = currentSong.audioUrl;
-    AUDIO.load();
-    this.setState({ currentSong, currentSongList });
-  }
-
-  startSong (song, list) {
-    this.pause();
-    this.load(song, list);
-    this.play();
-  }
-
-  toggleOne (selectedSong, selectedSongList) {
-    if (selectedSong.id !== this.state.currentSong.id)
-      this.startSong(selectedSong, selectedSongList);
-    else this.toggle();
-  }
-
-  toggle () {
-    if (this.state.isPlaying) this.pause();
-    else this.play();
   }
 
   next () {
@@ -115,18 +77,45 @@ export default class AppContainer extends Component {
         </div>
         <div className="col-xs-10">
           <AlbumsContainer />
+          <Album
+            album={this.props.album}
+            currentSong={this.props.currentSong}
+            isPlaying={this.props.isPlaying}
+            toggle={this.props.toggleOne}
+          />
         </div>
         <Player
-          currentSong={this.state.currentSong}
-          currentSongList={this.state.currentSongList}
-          isPlaying={this.state.isPlaying}
+          currentSong={this.props.currentSong}
+          currentSongList={this.props.currentSongList}
+          isPlaying={this.props.isPlaying}
           progress={this.state.progress}
           next={this.next}
           prev={this.prev}
-          toggle={this.toggle}
+          toggle={this.props.toggle}
           scrub={evt => this.seek(evt.nativeEvent.offsetX / evt.target.clientWidth)}
         />
       </div>
     );
   }
 }
+
+const mapStateToProps = (state = initialState) => ({
+    album: state.album,
+    currentSong: state.currentSong,
+    currentSongList: state.currentSongList,
+    isPlaying: state.isPlaying
+})
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        toggle: () => dispatch(toggle()),
+        toggleOne: (song, list) => dispatch(toggleOne(song,list))
+    }
+}
+
+const newAppContainer = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AppContainer);
+
+export default newAppContainer;

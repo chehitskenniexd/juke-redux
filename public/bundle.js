@@ -21479,6 +21479,8 @@
 	
 	var _AlbumsContainer2 = _interopRequireDefault(_AlbumsContainer);
 	
+	var _reactRedux = __webpack_require__(180);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -21526,8 +21528,6 @@
 	
 	    _this.state = _initialState2.default;
 	
-	    _this.toggle = _this.toggle.bind(_this);
-	    _this.toggleOne = _this.toggleOne.bind(_this);
 	    _this.next = _this.next.bind(_this);
 	    _this.prev = _this.prev.bind(_this);
 	    return _this;
@@ -21537,12 +21537,6 @@
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
 	      var _this2 = this;
-	
-	      fetch('/api/albums/1').then(function (res) {
-	        return res.json();
-	      }).then(function (album) {
-	        return _this2.onLoad(convertAlbum(album));
-	      });
 	
 	      _audio2.default.addEventListener('ended', function () {
 	        return _this2.next();
@@ -21555,42 +21549,6 @@
 	    key: 'onLoad',
 	    value: function onLoad(album) {
 	      this.setState({ album: album });
-	    }
-	  }, {
-	    key: 'play',
-	    value: function play() {
-	      _audio2.default.play();
-	      this.setState({ isPlaying: true });
-	    }
-	  }, {
-	    key: 'pause',
-	    value: function pause() {
-	      _audio2.default.pause();
-	      this.setState({ isPlaying: false });
-	    }
-	  }, {
-	    key: 'load',
-	    value: function load(currentSong, currentSongList) {
-	      _audio2.default.src = currentSong.audioUrl;
-	      _audio2.default.load();
-	      this.setState({ currentSong: currentSong, currentSongList: currentSongList });
-	    }
-	  }, {
-	    key: 'startSong',
-	    value: function startSong(song, list) {
-	      this.pause();
-	      this.load(song, list);
-	      this.play();
-	    }
-	  }, {
-	    key: 'toggleOne',
-	    value: function toggleOne(selectedSong, selectedSongList) {
-	      if (selectedSong.id !== this.state.currentSong.id) this.startSong(selectedSong, selectedSongList);else this.toggle();
-	    }
-	  }, {
-	    key: 'toggle',
-	    value: function toggle() {
-	      if (this.state.isPlaying) this.pause();else this.play();
 	    }
 	  }, {
 	    key: 'next',
@@ -21629,16 +21587,22 @@
 	        _react2.default.createElement(
 	          'div',
 	          { className: 'col-xs-10' },
-	          _react2.default.createElement(_AlbumsContainer2.default, null)
+	          _react2.default.createElement(_AlbumsContainer2.default, null),
+	          _react2.default.createElement(_Album2.default, {
+	            album: this.props.album,
+	            currentSong: this.props.currentSong,
+	            isPlaying: this.props.isPlaying,
+	            toggle: this.props.toggleOne
+	          })
 	        ),
 	        _react2.default.createElement(_Player2.default, {
-	          currentSong: this.state.currentSong,
-	          currentSongList: this.state.currentSongList,
-	          isPlaying: this.state.isPlaying,
+	          currentSong: this.props.currentSong,
+	          currentSongList: this.props.currentSongList,
+	          isPlaying: this.props.isPlaying,
 	          progress: this.state.progress,
 	          next: this.next,
 	          prev: this.prev,
-	          toggle: this.toggle,
+	          toggle: this.props.toggle,
 	          scrub: function scrub(evt) {
 	            return _this3.seek(evt.nativeEvent.offsetX / evt.target.clientWidth);
 	          }
@@ -21650,7 +21614,50 @@
 	  return AppContainer;
 	}(_react.Component);
 	
-	exports.default = AppContainer;
+	var mapStateToProps = function mapStateToProps() {
+	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _initialState2.default;
+	  return {
+	    album: state.album,
+	    currentSong: state.currentSong,
+	    currentSongList: state.currentSongList,
+	    isPlaying: state.isPlaying
+	  };
+	};
+	
+	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+	  return {
+	    toggle: function (_toggle) {
+	      function toggle() {
+	        return _toggle.apply(this, arguments);
+	      }
+	
+	      toggle.toString = function () {
+	        return _toggle.toString();
+	      };
+	
+	      return toggle;
+	    }(function () {
+	      return dispatch(toggle());
+	    }),
+	    toggleOne: function (_toggleOne) {
+	      function toggleOne(_x2, _x3) {
+	        return _toggleOne.apply(this, arguments);
+	      }
+	
+	      toggleOne.toString = function () {
+	        return _toggleOne.toString();
+	      };
+	
+	      return toggleOne;
+	    }(function (song, list) {
+	      return dispatch(toggleOne(song, list));
+	    })
+	  };
+	};
+	
+	var newAppContainer = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(AppContainer);
+	
+	exports.default = newAppContainer;
 
 /***/ },
 /* 173 */
@@ -23669,7 +23676,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.fetchAlbumsFromServer = exports.receivedAlbumsFromServer = undefined;
+	exports.selectAlbum = exports.toggleOne = exports.toggle = exports.load = exports.pauseSong = exports.playSong = exports.fetchAlbumsFromServer = exports.stopPlaying = exports.startPlaying = exports.setCurrentSong = exports.setCurrentAlbum = exports.receivedAlbumsFromServer = undefined;
 	
 	var _redux = __webpack_require__(187);
 	
@@ -23685,16 +23692,42 @@
 	
 	var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 	
+	var _audio = __webpack_require__(174);
+	
+	var _audio2 = _interopRequireDefault(_audio);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+	
 	var RECEIVED_ALBUMS_FROM_SERVER = 'RECEIVED_ALBUMS_FROM_SERVER';
+	var SET_CURRENT_SONG = 'SET_CURRENT_SONG';
+	var START_PLAYING = 'START_PLAYING';
+	var STOP_PLAYING = 'STOP_PLAYING';
+	var SET_CURRENT_ALBUM = 'SET_CURRENT_ALBUM';
 	
 	// Actions for Components
 	var receivedAlbumsFromServer = exports.receivedAlbumsFromServer = function receivedAlbumsFromServer(albums) {
 	    return { type: RECEIVED_ALBUMS_FROM_SERVER, albums: albums };
 	};
+	var setCurrentAlbum = exports.setCurrentAlbum = function setCurrentAlbum(album) {
+	    return { type: SET_CURRENT_ALBUM, album: album };
+	};
+	var setCurrentSong = exports.setCurrentSong = function setCurrentSong(currentSong, currentSongList) {
+	    return {
+	        type: SET_CURRENT_SONG,
+	        currentSong: currentSong,
+	        currentSongList: currentSongList
+	    };
+	};
+	var startPlaying = exports.startPlaying = function startPlaying() {
+	    return { type: START_PLAYING };
+	};
+	var stopPlaying = exports.stopPlaying = function stopPlaying() {
+	    return { type: STOP_PLAYING };
+	};
 	
-	// Use thunkMiddleware to handle async calls 
+	// Use thunkMiddleware to handle async calls
 	var fetchAlbumsFromServer = exports.fetchAlbumsFromServer = function fetchAlbumsFromServer() {
 	    return function (dispatch) {
 	        fetch('api/albums').then(function (res) {
@@ -23707,23 +23740,145 @@
 	    };
 	};
 	
+	//song async functionality
+	var playSong = exports.playSong = function playSong() {
+	    return function (dispatch) {
+	        _audio2.default.play();
+	        dispatch(startPlaying());
+	    };
+	};
+	var pauseSong = exports.pauseSong = function pauseSong() {
+	    return function (dispatch) {
+	        _audio2.default.pause();
+	        dispatch(stopPlaying());
+	    };
+	};
+	var load = exports.load = function load() {
+	    return function (dispatch) {
+	        _audio2.default.src = currentSong.audioUrl;
+	        _audio2.default.load();
+	        dispatch(setCurrentSong(currentSong, currentSongList));
+	    };
+	};
+	var toggle = exports.toggle = function toggle() {
+	    return function (dispatch, getState) {
+	        var _getState = getState();
+	
+	        var isPlaying = _getState.isPlaying;
+	
+	        if (isPlaying) {
+	            dispatch(pauseSong());
+	        } else {
+	            dispatch(playSong());
+	        }
+	    };
+	};
+	var toggleOne = exports.toggleOne = function toggleOne(selectedSong, selectedSongList) {
+	    return function (dispatch, getState) {
+	        var _getState2 = getState();
+	
+	        var currentSong = _getState2.currentSong;
+	
+	        if (selectedSong.id !== currentSong.id) {
+	            dispatch(startSong(selectedSong, selectedSongList));
+	        } else {
+	            dispatch(toggle());
+	        }
+	    };
+	};
+	
+	var selectAlbum = exports.selectAlbum = function selectAlbum(selectedAlbum) {
+	    return function (dispatch, getState) {
+	        //const album = getState().album
+	        var _getState3 = getState();
+	
+	        var album = _getState3.album;
+	
+	        if (album.id !== selectAlbum.id) {
+	            dispatch(setCurrentAlbum(selectAlbum));
+	        }
+	    };
+	};
+	
 	// Reducer function for Redux app
-	function reducer() {
-	    var prevState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _initialState2.default;
+	function albumReducer() {
+	    var prevState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    var action = arguments[1];
 	
 	    switch (action.type) {
-	        case RECEIVED_ALBUMS_FROM_SERVER:
+	        case SET_CURRENT_ALBUM:
 	            {
-	                return Object.assign({}, prevState, { albums: action.albums });
+	                return action.album;
 	            }
 	        default:
 	            return prevState;
 	    }
 	}
 	
+	function albumsReducer() {
+	    var prevState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+	    var action = arguments[1];
+	
+	    switch (action.type) {
+	        case RECEIVED_ALBUMS_FROM_SERVER:
+	            {
+	                return [].concat(_toConsumableArray(prevState)).concat(action.albums);
+	            }
+	        default:
+	            return prevState;
+	    }
+	}
+	
+	function isPlayingReducer() {
+	    var prevState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+	    var action = arguments[1];
+	
+	    switch (action.type) {
+	        case START_PLAYING:
+	            return true;
+	        case STOP_PLAYING:
+	            return false;
+	        default:
+	            return prevState;
+	    }
+	}
+	function currentSongReducer() {
+	    var prevState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	    var action = arguments[1];
+	
+	    switch (action.type) {
+	        case SET_CURRENT_SONG:
+	            {
+	                return action.currentSong;
+	            }
+	        default:
+	            return prevState;
+	    }
+	}
+	function currentSongListReducer() {
+	    var prevState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+	    var action = arguments[1];
+	
+	    switch (action.type) {
+	        case SET_CURRENT_SONG:
+	            {
+	                return action.currentSongList;
+	            }
+	        default:
+	            return prevState;
+	    }
+	}
+	
+	var rootReducer = (0, _redux.combineReducers)({
+	    album: albumReducer,
+	    albums: albumsReducer,
+	    isPlaying: isPlayingReducer,
+	    currentSong: currentSongReducer,
+	    currentSongList: currentSongListReducer
+	});
+	
 	// Initialize the store
-	var store = (0, _redux.createStore)(reducer, (0, _redux.applyMiddleware)((0, _reduxLogger2.default)(), _reduxThunk2.default));
+	var store = (0, _redux.createStore)(rootReducer, (0, _redux.applyMiddleware)((0, _reduxLogger2.default)(), _reduxThunk2.default));
 	exports.default = store;
 
 /***/ },
