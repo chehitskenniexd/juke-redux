@@ -21763,7 +21763,7 @@
 	        null,
 	        album.name
 	      ),
-	      _react2.default.createElement('img', { src: album.imageUrl, className: 'img-thumbnail' })
+	      _react2.default.createElement('img', { src: '/api/albums/' + album.id + '/image', className: 'img-thumbnail' })
 	    ),
 	    _react2.default.createElement(_Songs2.default, {
 	      songs: album.songs,
@@ -21794,6 +21794,8 @@
 	  var currentSong = _ref.currentSong;
 	  var isPlaying = _ref.isPlaying;
 	  var toggle = _ref.toggle;
+	
+	  console.log(songs);
 	  return _react2.default.createElement(
 	    'table',
 	    { className: 'table' },
@@ -21963,6 +21965,7 @@
 	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initalState;
 	  var ownProps = arguments[1];
 	  return {
+	    album: state.album,
 	    albums: state.albums
 	  };
 	};
@@ -21971,6 +21974,9 @@
 	  return {
 	    loadAlbums: function loadAlbums() {
 	      return dispatch((0, _redux.fetchAlbumsFromServer)());
+	    },
+	    setCurrentAlbum: function setCurrentAlbum(album) {
+	      return dispatch((0, _redux.setCurrentAlbum)(album));
 	    }
 	  };
 	};
@@ -23616,6 +23622,8 @@
 	  }, {
 	    key: 'render',
 	    value: function render() {
+	      var _this2 = this;
+	
 	      return _react2.default.createElement(
 	        'div',
 	        null,
@@ -23630,7 +23638,9 @@
 	          this.props.albums ? this.props.albums.map(function (album, index) {
 	            return _react2.default.createElement(
 	              'div',
-	              { className: 'col-xs-4', key: index },
+	              { onClick: function onClick() {
+	                  return _this2.props.setCurrentAlbum(album);
+	                }, className: 'col-xs-4', key: index },
 	              _react2.default.createElement(
 	                'a',
 	                { className: 'thumbnail', href: '#' },
@@ -23711,8 +23721,18 @@
 	    return { type: RECEIVED_ALBUMS_FROM_SERVER, albums: albums };
 	};
 	var setCurrentAlbum = exports.setCurrentAlbum = function setCurrentAlbum(album) {
-	    return { type: SET_CURRENT_ALBUM, album: album };
+	    return function (dispatch) {
+	        fetch('api/albums/' + album.id).then(function (res) {
+	            return res.json();
+	        }).then(function (album) {
+	            return dispatch({
+	                type: SET_CURRENT_ALBUM,
+	                album: album
+	            });
+	        });
+	    };
 	};
+	
 	var setCurrentSong = exports.setCurrentSong = function setCurrentSong(currentSong, currentSongList) {
 	    return {
 	        type: SET_CURRENT_SONG,

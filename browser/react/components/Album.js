@@ -7,7 +7,7 @@ export default ({ album, currentSong, isPlaying, toggle }) => (
   <div className="album">
     <div>
       <h3>{album.name}</h3>
-      <img src={album.imageUrl} className="img-thumbnail" />
+      <img src={`/api/albums/${album.id}/image`} className="img-thumbnail" />
     </div>
     <Songs
       songs={album.songs}
@@ -15,4 +15,4 @@ export default ({ album, currentSong, isPlaying, toggle }) => (
       isPlaying={isPlaying}
       toggle={toggle} />
   </div>
-);
+)

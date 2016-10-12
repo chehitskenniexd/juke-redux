@@ -17,8 +17,16 @@ export const receivedAlbumsFromServer = albums => {
     return { type: RECEIVED_ALBUMS_FROM_SERVER, albums }
 }
 export const setCurrentAlbum = album => {
-    return { type: SET_CURRENT_ALBUM, album }
+    return dispatch => {
+        fetch(`api/albums/${album.id}`)
+        .then(res => res.json())
+        .then(album => dispatch({
+            type: SET_CURRENT_ALBUM,
+            album: album
+        }))
+    }
 }
+
 export const setCurrentSong = (currentSong, currentSongList) => ({
     type: SET_CURRENT_SONG,
     currentSong,

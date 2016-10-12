@@ -18,7 +18,7 @@ export default class Albums extends Component {
           {
             this.props.albums
               ? this.props.albums.map((album, index) =>
-                <div className="col-xs-4" key={index}>
+                <div onClick={() => this.props.setCurrentAlbum(album)} className="col-xs-4" key={index}>
                   <a className="thumbnail" href="#">
                     <img src={`api/albums/${album.id}/image`} />
                     <div className="caption">
