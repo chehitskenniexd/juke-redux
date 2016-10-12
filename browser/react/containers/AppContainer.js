@@ -23,7 +23,7 @@ const convertAlbum = album => {
   return album;
 };
 
-const mod = (num, m) =>((num % m) + m) % m;
+const mod = (num, m) => ((num % m) + m) % m;
 
 const skip = (interval, { currentSongList, currentSong }) => {
   let idx = currentSongList.map(song => song.id).indexOf(currentSong.id);
@@ -34,7 +34,7 @@ const skip = (interval, { currentSongList, currentSong }) => {
 
 class AppContainer extends Component {
 
-  constructor (props) {
+  constructor(props) {
     super(props);
     this.state = initialState;
 
@@ -42,48 +42,51 @@ class AppContainer extends Component {
     this.prev = this.prev.bind(this);
   }
 
-  componentDidMount () {
+  componentDidMount() {
     AUDIO.addEventListener('ended', () =>
       this.next());
     AUDIO.addEventListener('timeupdate', () =>
       this.setProgress(AUDIO.currentTime / AUDIO.duration));
   }
 
-  onLoad (album) {
+  onLoad(album) {
     this.setState({ album });
   }
 
-  next () {
+  next() {
     this.startSong(...skip(1, this.state));
   }
 
-  prev () {
+  prev() {
     this.startSong(...skip(-1, this.state));
   }
 
-  seek (decimal) {
+  seek(decimal) {
     AUDIO.currentTime = AUDIO.duration * decimal;
     this.setProgress(AUDIO.currentTime / AUDIO.duration);
   }
 
-  setProgress (progress) {
+  setProgress(progress) {
     this.setState({ progress });
   }
 
-  render () {
+  render() {
     return (
       <div id="main" className="container-fluid">
         <div className="col-xs-2">
           <Sidebar />
         </div>
         <div className="col-xs-10">
-          <AlbumsContainer />
-          <Album
-            album={this.props.album}
-            currentSong={this.props.currentSong}
-            isPlaying={this.props.isPlaying}
-            toggle={this.props.toggleOne}
-          />
+          {
+            this.props.album.id
+              ? <Album
+                album={this.props.album}
+                currentSong={this.props.currentSong}
+                isPlaying={this.props.isPlaying}
+                toggle={this.props.toggleOne}
+                />
+              : <AlbumsContainer />
+          }
         </div>
         <Player
           currentSong={this.props.currentSong}
@@ -94,24 +97,24 @@ class AppContainer extends Component {
           prev={this.prev}
           toggle={this.props.toggle}
           scrub={evt => this.seek(evt.nativeEvent.offsetX / evt.target.clientWidth)}
-        />
+          />
       </div>
     );
   }
 }
 
 const mapStateToProps = (state = initialState) => ({
-    album: state.album,
-    currentSong: state.currentSong,
-    currentSongList: state.currentSongList,
-    isPlaying: state.isPlaying
+  album: state.album,
+  currentSong: state.currentSong,
+  currentSongList: state.currentSongList,
+  isPlaying: state.isPlaying
 })
 
 const mapDispatchToProps = (dispatch) => {
-    return {
-        toggle: () => dispatch(toggle()),
-        toggleOne: (song, list) => dispatch(toggleOne(song,list))
-    }
+  return {
+    toggle: () => dispatch(toggle()),
+    toggleOne: (song, list) => dispatch(toggleOne(song, list))
+  }
 }
 
 const newAppContainer = connect(

@@ -21589,13 +21589,12 @@
 	        _react2.default.createElement(
 	          'div',
 	          { className: 'col-xs-10' },
-	          _react2.default.createElement(_AlbumsContainer2.default, null),
-	          _react2.default.createElement(_Album2.default, {
+	          this.props.album.id ? _react2.default.createElement(_Album2.default, {
 	            album: this.props.album,
 	            currentSong: this.props.currentSong,
 	            isPlaying: this.props.isPlaying,
 	            toggle: this.props.toggleOne
-	          })
+	          }) : _react2.default.createElement(_AlbumsContainer2.default, null)
 	        ),
 	        _react2.default.createElement(_Player2.default, {
 	          currentSong: this.props.currentSong,
@@ -21777,6 +21776,7 @@
 	  var isPlaying = _ref.isPlaying;
 	  var toggle = _ref.toggle;
 	
+	  console.log(currentSong);
 	  return _react2.default.createElement(
 	    'table',
 	    { className: 'table' },
@@ -21810,7 +21810,7 @@
 	      songs && songs.map(function (song) {
 	        return _react2.default.createElement(
 	          'tr',
-	          { key: song.id },
+	          { key: song.id, className: song.id === currentSong.id ? 'active' : '' },
 	          _react2.default.createElement(
 	            'td',
 	            null,
